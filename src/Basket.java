@@ -132,4 +132,25 @@ public class Basket {
         }
         return new Basket(product, price, numProduct, sumProducts);
     }
+
+    public void saveBin(File file) {
+        try (FileOutputStream fos = new FileOutputStream("basket.bin");
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            Basket basket = new Basket(getProduct(), getPrice(), getNumProducts(), getSumProducts());
+            oos.writeObject(basket);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public static Basket loadFromBinFile(File file) {
+        Basket basket = new Basket();
+        try (FileInputStream fis = new FileInputStream("basket.bin");
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            basket = (Basket) ois.readObject();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return basket;
+    }
 }
