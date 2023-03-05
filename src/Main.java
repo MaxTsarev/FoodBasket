@@ -6,7 +6,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         File file = new File("basket.bin");
 
-
         String[] product = {"Хлеб", "Яблоки", "Молоко"};
         int[] price = {30, 150, 80};
 
