@@ -1,3 +1,5 @@
+package main.java;
+
 import java.io.*;
 
 public class Basket implements Serializable{
