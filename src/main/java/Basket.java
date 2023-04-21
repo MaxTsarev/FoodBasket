@@ -1,8 +1,6 @@
-package main.java;
-
 import java.io.*;
 
-public class Basket implements Serializable{
+public class Basket implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -80,7 +78,7 @@ public class Basket implements Serializable{
 
 
     public void saveBin(File file) {
-        try (FileOutputStream fos = new FileOutputStream("basket.bin");
+        try (FileOutputStream fos = new FileOutputStream("basket.json");
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             Basket basket = new Basket(getProduct(), getPrice(), getNumProducts(), getSumProducts());
             oos.writeObject(basket);
@@ -91,7 +89,7 @@ public class Basket implements Serializable{
 
     public static Basket loadFromBinFile(File file) {
         Basket basket = new Basket();
-        try (FileInputStream fis = new FileInputStream("basket.bin");
+        try (FileInputStream fis = new FileInputStream("basket.json");
              ObjectInputStream ois = new ObjectInputStream(fis)) {
             basket = (Basket) ois.readObject();
         } catch (Exception ex) {

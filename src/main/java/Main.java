@@ -1,21 +1,31 @@
-package main.java;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File file = new File("basket.bin");
 
+        File file = new File("basket.json");
+        File fileCsv = new File("log.csv");
+        Gson gson = new Gson();
+
+        String jsonString;
         String[] product = {"Хлеб", "Яблоки", "Молоко"};
         int[] price = {30, 150, 80};
 
         Basket basket = new Basket();
 
         if (file.exists()) {
-            basket = Basket.loadFromBinFile(file);
+            jsonString = Files.readString(Paths.get(String.valueOf(file)));
+            basket = gson.fromJson(jsonString, Basket.class);
         } else {
             basket.setProduct(product);
             basket.setPrice(price);
@@ -68,9 +78,20 @@ public class Main {
                 continue;
             }
 
+            ClientLog.log(productNumber, productCount);
             basket.addToCart(productNumber, productCount);
-            basket.saveBin(file);
         }
+
+        GsonBuilder builder = new GsonBuilder();
+        gson = builder.create();
+        jsonString = gson.toJson(basket);
+        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+            out.write(jsonString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ClientLog.exportAsCSV(fileCsv);
         basket.printCart();
     }
 }
