@@ -1,6 +1,8 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,9 +13,14 @@ import java.util.Scanner;
 
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+
+        String load = "load";
+        String save = "save";
+        String log = "log";
 
         File file = new File("basket.json");
+        File file1 = new File("basket.txt");
         File fileCsv = new File("log.csv");
         Gson gson = new Gson();
 
@@ -23,9 +30,17 @@ public class Main {
 
         Basket basket = new Basket();
 
-        if (file.exists()) {
-            jsonString = Files.readString(Paths.get(String.valueOf(file)));
-            basket = gson.fromJson(jsonString, Basket.class);
+        if (XmlParser.parsEnabled(load)) {
+            if (XmlParser.parsFileName(load).equals("basket.json")) {
+                if (file.exists()) {
+                    jsonString = Files.readString(Paths.get(String.valueOf(file)));
+                    basket = gson.fromJson(jsonString, Basket.class);
+                }
+            } else {
+                if (file.exists()) {
+                    basket = Basket.loadFromTxtFile(file1);
+                }
+            }
         } else {
             basket.setProduct(product);
             basket.setPrice(price);
@@ -80,18 +95,28 @@ public class Main {
 
             ClientLog.log(productNumber, productCount);
             basket.addToCart(productNumber, productCount);
+
+            if (XmlParser.parsEnabled(save)) {
+                if (XmlParser.parsFileName(save).equals("basket.json")) {
+                    GsonBuilder builder1 = new GsonBuilder();
+                    gson = builder1.create();
+                    jsonString = gson.toJson(basket);
+                    try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                        out.write(jsonString);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    basket.saveTxt(file1);
+                }
+            }
+
         }
 
-        GsonBuilder builder = new GsonBuilder();
-        gson = builder.create();
-        jsonString = gson.toJson(basket);
-        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
-            out.write(jsonString);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (XmlParser.parsEnabled(log)) {
+            ClientLog.exportAsCSV(fileCsv);
         }
 
-        ClientLog.exportAsCSV(fileCsv);
         basket.printCart();
     }
 }
